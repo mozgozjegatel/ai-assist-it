@@ -9,7 +9,24 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	httpSwagger "github.com/swaggo/http-swagger/v2"
+
+	_ "api-doc-example/docs" // Сгенерированная документация
 )
+
+// @title Todo API
+// @version 1.0
+// @description REST API для управления пользователями и их задачами.
+// @termsOfService http://swagger.io/terms/
+
+// @contact.name API Support
+// @contact.url http://www.example.com/support
+// @contact.email support@example.com
+
+// @license.name MIT
+// @license.url https://opensource.org/licenses/MIT
+
+// @host localhost:8080
+// @BasePath /api/v1
 
 func main() {
 	r := chi.NewRouter()
@@ -17,6 +34,7 @@ func main() {
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
 
+	// Маршруты для пользователей
 	usersRouter := chi.NewRouter()
 	userHandler := handlers.NewUserHandler()
 	usersRouter.Get("/", userHandler.ListUsers)
@@ -26,6 +44,7 @@ func main() {
 	usersRouter.Delete("/{id}", userHandler.DeleteUser)
 	r.Mount("/api/v1/users", usersRouter)
 
+	// Маршруты для задач
 	todosRouter := chi.NewRouter()
 	todoHandler := handlers.NewTodoHandler()
 	todosRouter.Get("/", todoHandler.ListTodos)
@@ -35,13 +54,16 @@ func main() {
 	todosRouter.Delete("/{id}", todoHandler.DeleteTodo)
 	r.Mount("/api/v1/todos", todosRouter)
 
-	r.Mount("/swagger", httpSwagger.Handler(httpSwagger.URL("/docs/swagger.json")))
+	// Swagger документация
+	r.Mount("/swagger", httpSwagger.Handler(
+		httpSwagger.URL("/docs/swagger.json"),
+	))
 	r.Get("/docs/swagger.json", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "docs/swagger.json")
 	})
 
-	log.Println("Сервер запущен на http://localhost:8080")
-	log.Println("Swagger UI доступен по адресу: http://localhost:8080/swagger/")
+	log.Println("🚀 Сервер запущен на http://localhost:8080")
+	log.Println("📚 Swagger UI доступен по адресу: http://localhost:8080/swagger/")
 
 	if err := http.ListenAndServe(":8080", r); err != nil {
 		log.Fatal(err)
